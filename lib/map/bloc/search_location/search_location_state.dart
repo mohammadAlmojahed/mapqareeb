@@ -1,5 +1,5 @@
 part of 'search_location_cubit.dart';
-
+enum CubitStatuses { init, loading, done, error }
 class SearchLocationInitial extends Equatable {
   final CubitStatuses statuses;
   final List<SearchLocationResult> result;

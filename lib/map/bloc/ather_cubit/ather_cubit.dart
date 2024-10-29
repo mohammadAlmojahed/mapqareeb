@@ -17,7 +17,7 @@ import '../map_controller_cubit/map_controller_cubit.dart';
 part 'ather_state.dart';
 
 const atherKey = '5BE3080722588655FE55B8E89B765827';
-
+enum CubitStatuses { init, loading, done, error }
 class AtherCubit extends Cubit<AtherInitial> {
   AtherCubit() : super(AtherInitial.initial());
 

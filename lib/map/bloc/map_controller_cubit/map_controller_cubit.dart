@@ -1,14 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
-
 import 'package:qareeb_models/booking/trip_mediator.dart';
 import 'package:qareeb_models/extensions.dart';
 import 'package:qareeb_models/global.dart';
@@ -18,7 +14,6 @@ import 'package:qareeb_models/trip_path/data/models/trip_path.dart';
 import 'package:qareeb_models/trip_process/data/response/trip_response.dart';
 import 'package:saed_http/api_manager/api_service.dart';
 import 'package:saed_http/pair_class.dart';
-
 import '../../data/models/my_marker.dart';
 
 part 'map_controller_state.dart';
@@ -31,8 +26,8 @@ extension PathMap on TripPath {
     edges.forEachIndexed(
       (i, e) {
         if (i == 0) {
-          list.add(
-              MyMarker(point: e.startPoint.getLatLng, type: MyMarkerType.sharedPint));
+          list.add(MyMarker(
+              point: e.startPoint.getLatLng, type: MyMarkerType.sharedPint));
         }
         list.add(
           MyMarker(
@@ -59,7 +54,8 @@ extension PathMap on TripPath {
 }
 
 extension NormalTripMap on TripResult {
-  List<MyMarker> getMarkers() {
+  List<MyMarker> getMarkers(
+      {required LatLng startPoint, required LatLng endPoint}) {
     return [
       MyMarker(point: startPoint, type: MyMarkerType.sharedPint),
       MyMarker(point: endPoint, type: MyMarkerType.sharedPint),
@@ -125,7 +121,8 @@ class MapControllerCubit extends Cubit<MapControllerInitial> {
 
   void addPath({required TripPath path, Function(dynamic item)? onTapMarker}) {
     clearMap(false);
-    addMarkers(marker: path.getMarkers(onTapMarker: onTapMarker), update: false);
+    addMarkers(
+        marker: path.getMarkers(onTapMarker: onTapMarker), update: false);
     addEncodedPolyLines(myPolyLines: path.getPolyLines(), update: false);
     centerPointMarkers();
     emit(state.copyWith(
@@ -134,13 +131,17 @@ class MapControllerCubit extends Cubit<MapControllerInitial> {
     ));
   }
 
-  void addTrip({required TripResult trip}) {
-    addMarkers(marker: trip.getMarkers());
+  void addTrip(
+      {required TripResult trip,
+      required LatLng startPoint,
+      required LatLng endPoint}) {
+    addMarkers(
+        marker: trip.getMarkers(endPoint: endPoint, startPoint: startPoint));
     centerPointMarkers();
 
-    addPolyLine(start: trip.startPoint, end: trip.endPoint);
+    addPolyLine(start: startPoint, end: endPoint);
     emit(state.copyWith(
-      point: trip.startPoint,
+      point: startPoint,
       markerNotifier: state.markerNotifier + 1,
       polylineNotifier: state.polylineNotifier + 1,
     ));
@@ -214,7 +215,8 @@ class MapControllerCubit extends Cubit<MapControllerInitial> {
     final pair = await _getRoutePointApi(start: start, end: end);
 
     if (pair.first != null) {
-      var list = decodePolyline(pair.first!.routes.first.geometry).unpackPolyline();
+      var list =
+          decodePolyline(pair.first!.routes.first.geometry).unpackPolyline();
       state.polyLines[key ?? end.hashCode] = Pair(list, Colors.black);
       emit(state.copyWith(polylineNotifier: state.polylineNotifier + 1));
     }
@@ -230,7 +232,8 @@ class MapControllerCubit extends Cubit<MapControllerInitial> {
     emit(state.copyWith(polylineNotifier: state.polylineNotifier + 1));
   }
 
-  void addEncodedPolyLines({required List<MyPolyLine> myPolyLines, bool update = true}) {
+  void addEncodedPolyLines(
+      {required List<MyPolyLine> myPolyLines, bool update = true}) {
     state.polyLines.clear();
     for (var e in myPolyLines) {
       if (e.endPoint != null) {
@@ -244,9 +247,11 @@ class MapControllerCubit extends Cubit<MapControllerInitial> {
       }
       if (e.key == null && e.endPoint == null) return;
       var list = decodePolyline(e.encodedPolyLine).unpackPolyline();
-      state.polyLines[e.key ?? e.endPoint.hashCode] = Pair(list, e.color ?? Colors.black);
+      state.polyLines[e.key ?? e.endPoint.hashCode] =
+          Pair(list, e.color ?? Colors.black);
     }
-    if (update) emit(state.copyWith(polylineNotifier: state.polylineNotifier + 1));
+    if (update)
+      emit(state.copyWith(polylineNotifier: state.polylineNotifier + 1));
   }
 
   Future<Pair<OsrmModel?, String?>> _getRoutePointApi(
@@ -277,17 +282,19 @@ class MapControllerCubit extends Cubit<MapControllerInitial> {
         marker: points.mapIndexed(
       (i, e) {
         return MyMarker(
-            point: e.getLatLng,
-            type: MyMarkerType.point,
-            key: e.id,
-            item: e,
-            onTapMarker1: onTapMarker,);
+          point: e.getLatLng,
+          type: MyMarkerType.point,
+          key: e.id,
+          item: e,
+          onTapMarker1: onTapMarker,
+        );
       },
     ).toList());
   }
 
   void updateMarkersWithZoom(double zoom) {
-    emit(state.copyWith(markerNotifier: state.markerNotifier + 1, mapZoom: zoom));
+    emit(state.copyWith(
+        markerNotifier: state.markerNotifier + 1, mapZoom: zoom));
   }
 }
 
@@ -309,7 +316,8 @@ double getZoomLevel(LatLng point1, LatLng point2, double width) {
   final distance = distanceBetween(point1, point2) * 1000;
   final zoomScale = distance / (width * 0.6);
   final zoom =
-      log(40075016.686 * cos(point1.latitude * pi / 180) / (256 * zoomScale)) / log(2);
+      log(40075016.686 * cos(point1.latitude * pi / 180) / (256 * zoomScale)) /
+          log(2);
 
   return zoom;
 }

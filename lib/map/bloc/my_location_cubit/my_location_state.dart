@@ -36,3 +36,4 @@ class MyLocationInitial {
     );
   }
 }
+enum CubitStatuses { init, loading, done, error }

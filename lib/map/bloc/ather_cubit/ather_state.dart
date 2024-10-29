@@ -12,7 +12,7 @@ class AtherInitial extends Equatable {
   });
 
   factory AtherInitial.initial() {
-    return const AtherInitial(
+    return   AtherInitial(
       result: [],
       error: '',
       statuses: CubitStatuses.init,

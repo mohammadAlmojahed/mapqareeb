@@ -49,8 +49,8 @@ class _MyAnimatedMarkerLayerState extends AnimatedWidgetBaseState<MyAnimatedMark
     super.build(context);
     final map = FlutterMapState.maybeOf(context)!;
     final pxPoint = map.project(LatLng(latitude, longitude));
-    final width = marker.width - marker.anchor.left;
-    final height = marker.height - marker.anchor.top;
+    final width = marker.width - marker.anchorPos!.anchor!.left;
+    final height = marker.height - marker.anchorPos!.anchor!.top;
     var sw = CustomPoint(pxPoint.x + width, pxPoint.y - height);
     var ne = CustomPoint(pxPoint.x - width, pxPoint.y + height);
     if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {

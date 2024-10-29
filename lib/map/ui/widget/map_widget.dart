@@ -64,7 +64,7 @@ class MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
   controlMarkersListener(_, MapControlInitial state) async {
     if (state.moveCamera) {
-      controller.animateTo(dest: state.point.ll2, zoom: controller.zoom);
+      controller.animateTo(dest: state.point.ll2, zoom: controller.mapController.zoom);
     }
 
     if (state.state == 'mt') {
@@ -129,7 +129,7 @@ class MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       ],
       child: FlutterMap(
         key: mapWidgetKey,
-        mapController: controller,
+        mapController: controller.mapController,
         options: MapOptions(
           maxZoom: maxZoom,
           center: widget.initialPoint?.ll2 ?? initialPoint.ll2,
@@ -141,7 +141,7 @@ class MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
             }
           },
           interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
-          onMapReady: () => widget.onMapReady?.call(controller),
+          onMapReady: () => widget.onMapReady?.call(controller.mapController),
           onTap: widget.onMapClick == null
               ? null
               : (tapPosition, point) {
@@ -154,7 +154,7 @@ class MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         ),
         nonRotatedChildren: [
           MapTypeSpinner(
-            controller: controller,
+            controller: controller.mapController,
           ),
           if (widget.search != null)
             Positioned(
@@ -283,7 +283,7 @@ class MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     if (widget.updateMarkerWithZoom ?? false) {
       markers.addAll(m
           .take(state.mapZoom.getZoomMarkerCount)
-          .where((marker) => controller.bounds?.contains(marker.point) ?? true)
+          .where((marker) => controller.mapController.bounds?.contains(marker.point) ?? true)
           .toList());
     } else {
       markers.addAll(m.toList());
