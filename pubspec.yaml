@@ -43,7 +43,7 @@ dependencies:
   internet_connection_checker: ^1.0.0+1
   http: any
 
-  logger:
+  logger: ^1.1.0
   flutter_map_animations:
 #  dropdown_button2: ^2.3.9
   geolocator: any
